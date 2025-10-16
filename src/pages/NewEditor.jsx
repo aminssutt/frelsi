@@ -49,6 +49,7 @@ const NewEditor = forwardRef(function NewEditor({ onCancel, onSaveInitial, initi
   const overlayRef = useRef(null)
   const canvasRef = useRef(null)
   const [title, setTitle] = useState(initialData?.title || '')
+  const [author, setAuthor] = useState(initialData?.author || 'lakhdar')
   const [date, setDate] = useState(initialData ? new Date(initialData.date || initialData.createdAt).toISOString().slice(0,10) : new Date().toISOString().slice(0,10))
   const [themes, setThemes] = useState(initialData?.themes || [])
   const [themeInput, setThemeInput] = useState('')
@@ -59,6 +60,7 @@ const NewEditor = forwardRef(function NewEditor({ onCancel, onSaveInitial, initi
   const [dirty, setDirty] = useState(false)
   const initialSnapshot = useRef({
     title: initialData?.title || '',
+    author: initialData?.author || 'lakhdar',
     date: initialData ? new Date(initialData.date || initialData.createdAt).toISOString().slice(0,10) : new Date().toISOString().slice(0,10),
     themes: initialData?.themes ? JSON.stringify(initialData.themes) : JSON.stringify([]),
     content: initialData?.excerpt || ''
@@ -111,11 +113,11 @@ const NewEditor = forwardRef(function NewEditor({ onCancel, onSaveInitial, initi
       // call submit and return payload
       const content = editorRef.current ? editorRef.current.innerHTML : ''
       const wrapper = `<div style=\"position:relative;min-height:200px;\">${content}</div>`
-      const payload = { title, date: new Date(date).getTime(), themes, excerpt: wrapper }
+      const payload = { title, author, date: new Date(date).getTime(), themes, excerpt: wrapper }
       if(initialData && initialData.id) payload.id = initialData.id
       onSaveInitial(payload)
       // update snapshot
-      initialSnapshot.current = { title, date, themes: JSON.stringify(themes), content }
+      initialSnapshot.current = { title, author, date, themes: JSON.stringify(themes), content }
       setDirty(false)
       return payload
     },
@@ -294,6 +296,10 @@ const NewEditor = forwardRef(function NewEditor({ onCancel, onSaveInitial, initi
     <div className="editor-page">
       <div className="editor-header">
         <input placeholder="Title" value={title} onChange={e=>setTitle(e.target.value)} />
+        <select value={author} onChange={e=>setAuthor(e.target.value)} style={{padding:'8px',borderRadius:'8px',border:'1px solid #e6dcd6'}}>
+          <option value="lakhdar">👤 Lakhdar Berache</option>
+          <option value="amar">👤 Amar Berache</option>
+        </select>
         <input type="date" value={date} onChange={e=>setDate(e.target.value)} />
         <div className="themes-input">
           <input placeholder="Add a theme" value={themeInput} onChange={e=>setThemeInput(e.target.value)} />

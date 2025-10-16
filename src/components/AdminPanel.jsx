@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Doodles from './Doodles'
 
 function Row({ it, onEdit, onTogglePublic }){
+  const authorName = it.author === 'amar' ? 'Amar' : 'Lakhdar'
   return (
     <div className="admin-row">
       <div className="admin-row-content">
@@ -11,6 +12,7 @@ function Row({ it, onEdit, onTogglePublic }){
             {it.type === 'notebook' ? '📓' : it.type === 'idea' ? '💡' : '🎨'} {it.type}
           </span>
           <span className="admin-row-date">{new Date(it.createdAt).toLocaleDateString()}</span>
+          {it.author && <span className="author-badge">👤 {authorName}</span>}
           <span className={`visibility-badge ${it.isPublic ? 'public' : 'private'}`}>
             {it.isPublic ? '👁️ Public' : '🔒 Private'}
           </span>
@@ -88,13 +90,14 @@ export default function AdminPanel({ items, onClose, onLogout, onAdd, onEdit, on
 export function DrawingEditor({ initial, onCancel, onSave }){
   const [title, setTitle] = useState(initial?.title || '')
   const [imageUrl, setImageUrl] = useState(initial?.imageUrl || '')
+  const [author, setAuthor] = useState(initial?.author || 'lakhdar')
   function removeImage(){ setImageUrl('') }
   function submit(){ 
     if(!title.trim()){
       alert('Please enter a title')
       return
     }
-    onSave({ title: title.trim(), imageUrl: imageUrl.trim() }) 
+    onSave({ title: title.trim(), imageUrl: imageUrl.trim(), author }) 
   }
   
   return (
@@ -107,6 +110,19 @@ export function DrawingEditor({ initial, onCancel, onSave }){
       
       <div className="editor-form">
         <div className="form-group">
+          <label htmlFor="drawing-author">Auteur *</label>
+          <select 
+            id="drawing-author"
+            className="editor-input"
+            value={author} 
+            onChange={e=>setAuthor(e.target.value)}
+          >
+            <option value="lakhdar">👤 Lakhdar Berache</option>
+            <option value="amar">👤 Amar Berache</option>
+          </select>
+        </div>
+        
+        <div className="form-group">
           <label htmlFor="drawing-title">Title *</label>
           <input 
             id="drawing-title"
@@ -114,7 +130,6 @@ export function DrawingEditor({ initial, onCancel, onSave }){
             value={title} 
             onChange={e=>setTitle(e.target.value)}
             placeholder="Give your drawing a name..."
-            autoFocus
           />
         </div>
         
@@ -137,7 +152,7 @@ export function DrawingEditor({ initial, onCancel, onSave }){
               type="file" 
               accept="image/*"
               className="file-upload-input"
-              onChange={async (e)=>{
+              onChange={(e)=>{
                 const file = e.target.files?.[0]
                 if(!file) return
                 const reader = new FileReader()
@@ -145,12 +160,12 @@ export function DrawingEditor({ initial, onCancel, onSave }){
                 reader.readAsDataURL(file)
               }} 
             />
-            <div className="file-upload-label">
+            <label htmlFor="drawing-upload" className="file-upload-label">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
               </svg>
               Choose file
-            </div>
+            </label>
           </div>
         </div>
         
@@ -188,13 +203,14 @@ export function DrawingEditor({ initial, onCancel, onSave }){
 export function IdeaEditor({ initial, onCancel, onSave }){
   const [title, setTitle] = useState(initial?.title || '')
   const [text, setText] = useState(initial?.text || '')
+  const [author, setAuthor] = useState(initial?.author || 'lakhdar')
   
   function submit(){ 
     if(!title.trim()){
       alert('Please enter a title')
       return
     }
-    onSave({ title: title.trim(), text: text.trim() }) 
+    onSave({ title: title.trim(), text: text.trim(), author }) 
   }
   
   return (
@@ -207,6 +223,19 @@ export function IdeaEditor({ initial, onCancel, onSave }){
       
       <div className="editor-form">
         <div className="form-group">
+          <label htmlFor="idea-author">Auteur *</label>
+          <select 
+            id="idea-author"
+            className="editor-input"
+            value={author} 
+            onChange={e=>setAuthor(e.target.value)}
+          >
+            <option value="lakhdar">👤 Lakhdar Berache</option>
+            <option value="amar">👤 Amar Berache</option>
+          </select>
+        </div>
+        
+        <div className="form-group">
           <label htmlFor="idea-title">Title *</label>
           <input 
             id="idea-title"
@@ -214,7 +243,6 @@ export function IdeaEditor({ initial, onCancel, onSave }){
             value={title} 
             onChange={e=>setTitle(e.target.value)}
             placeholder="What's your idea about?"
-            autoFocus
           />
         </div>
         

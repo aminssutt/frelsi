@@ -86,6 +86,7 @@ body{
   margin-top:100vh;
   background: linear-gradient(135deg, #fef6e4 0%, #f3e5f5 50%, #e8f4f8 100%);
   min-height:100vh;
+  padding-bottom:120px;
 }
 .main-content.no-intro{
   margin-top:0;
@@ -175,6 +176,7 @@ body{
 .card-body{flex:1}
 .card-meta{font-size:12px;color:var(--muted);background:rgba(0,0,0,0.03);display:inline-block;padding:6px 10px;border-radius:20px;margin-bottom:8px;transition:background .3s ease, transform .3s ease}
 .card:hover .card-meta{background:rgba(181,123,107,0.15);transform:translateX(3px)}
+.author-tag{margin-left:8px;padding:3px 8px;background:rgba(181,123,107,0.15);border-radius:12px;font-size:11px;font-weight:600;color:#b57b6b}
 .card h3{margin:6px 0 8px;transition:color .3s ease}
 .card:hover h3{color:#b57b6b}
 .excerpt{color:var(--muted);transition:color .3s ease}
@@ -282,9 +284,9 @@ body{
 .admin-select:hover{border-color:#b57b6b}
 .admin-select:focus{outline:none;border-color:#b57b6b;box-shadow:0 0 0 3px rgba(181,123,107,0.1)}
 
-/* Admin items list with fixed height container */
-.admin-items-wrapper{background:rgba(255,255,255,0.6);border-radius:12px;border:1px solid rgba(181,123,107,0.1);overflow:hidden}
-.admin-items-list{max-height:500px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+/* Admin items list - no fixed height to prevent scroll blocking */
+.admin-items-wrapper{background:rgba(255,255,255,0.6);border-radius:12px;border:1px solid rgba(181,123,107,0.1)}
+.admin-items-list{padding:16px;display:flex;flex-direction:column;gap:12px}
 .admin-items-list::-webkit-scrollbar{width:8px}
 .admin-items-list::-webkit-scrollbar-track{background:rgba(0,0,0,0.03);border-radius:4px}
 .admin-items-list::-webkit-scrollbar-thumb{background:rgba(181,123,107,0.3);border-radius:4px}
@@ -297,6 +299,7 @@ body{
 .admin-row-title{font-size:16px;font-weight:600;color:#3b2f2a;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .admin-row-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .admin-row-date{font-size:13px;color:var(--muted)}
+.author-badge{font-size:12px;padding:4px 10px;border-radius:12px;font-weight:600;background:rgba(181,123,107,0.15);color:#b57b6b}
 .visibility-badge{font-size:12px;padding:4px 10px;border-radius:12px;font-weight:500}
 .visibility-badge.public{background:rgba(76,175,80,0.15);color:#388e3c}
 .visibility-badge.private{background:rgba(255,152,0,0.15);color:#e65100}
@@ -324,6 +327,14 @@ body{
 .login-submit{width:100%;padding:14px;font-size:16px;font-weight:600;margin-top:8px}
 .login-demo-hint{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:rgba(181,123,107,0.08);border-radius:10px;font-size:13px;color:var(--muted);margin-top:8px}
 .login-demo-hint strong{color:#b57b6b}
+.login-icon{font-size:40px;line-height:80px}
+.form-hint{font-size:13px;color:#8c7b73;margin-top:4px}
+.login-success-message{padding:16px;background:#d4edda;color:#155724;border-radius:8px;margin-bottom:20px;font-size:14px}
+.login-success-message small{display:block;margin-top:4px;opacity:0.9}
+.code-input{font-size:24px !important;letter-spacing:8px !important;text-align:center !important;font-family:monospace !important}
+.link-button{background:none;border:none;color:#b57b6b;text-decoration:underline;cursor:pointer;font-size:13px;padding:0}
+.link-button:hover{color:#a06a5b}
+.link-button:disabled{opacity:0.5;cursor:not-allowed}
 
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -368,6 +379,7 @@ body{
 .reading-title-group{flex:1}
 .reading-title{font-family:'Playfair Display','Georgia',serif;font-size:42px;margin:0;color:white;line-height:1.2}
 .reading-meta{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+.reading-meta .author-badge{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3)}
 .reading-date{color:rgba(255,255,255,0.7);font-size:14px}
 .reading-paper{background:white;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.3);min-height:calc(297mm * 0.5);max-width:210mm;margin:0 auto;overflow:hidden}
 .paper-content{padding:60px 80px;font-size:16px;line-height:1.8;color:#2d2520}
