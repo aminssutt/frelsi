@@ -1,6 +1,15 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Configuration du transporteur Gmail
+const transporter = nodemailer.createTransporter({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.SMTP_PORT) || 587,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+})
 
 /**
  * Send authentication code email
@@ -9,8 +18,8 @@ const resend = new Resend(process.env.RESEND_API_KEY)
  */
 export async function sendAuthCode(email, code) {
   try {
-    const { data, error } = await resend.emails.send({
-      from: 'Frelsi <onboarding@resend.dev>',
+    const info = await transporter.sendMail({
+      from: `"Frelsi" <${process.env.SMTP_USER}>`,
       to: email,
       subject: '🔐 Votre code de connexion Frelsi',
       html: `
