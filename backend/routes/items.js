@@ -307,4 +307,99 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 })
 
+/**
+ * POST /api/items/:id/like
+ * Like an item (no auth required, tracked by IP)
+ */
+router.post('/:id/like', async (req, res) => {
+  try {
+    const { id } = req.params
+    const ipAddress = req.ip || req.connection.remoteAddress
+
+    // Check if already liked by this IP
+    const { data: existingLike } = await supabase
+      .from('likes')
+      .select('*')
+      .eq('item_id', id)
+      .eq('ip_address', ipAddress)
+      .single()
+
+    if (existingLike) {
+      // Already liked, return current count
+      const { data: item } = await supabase
+        .from('items')
+        .select('likes_count')
+        .eq('id', id)
+        .single()
+
+      return res.json({ 
+        likes_count: item?.likes_count || 0,
+        already_liked: true 
+      })
+    }
+
+    // Add like
+    const { error: likeError } = await supabase
+      .from('likes')
+      .insert({
+        item_id: id,
+        ip_address: ipAddress
+      })
+
+    if (likeError) {
+      console.error('Like insert error:', likeError)
+      return res.status(500).json({ error: 'Failed to add like' })
+    }
+
+    // Increment likes_count
+    const { data: item, error: updateError } = await supabase
+      .from('items')
+      .update({ likes_count: supabase.sql`likes_count + 1` })
+      .eq('id', id)
+      .select('likes_count')
+      .single()
+
+    if (updateError) {
+      console.error('Like count update error:', updateError)
+      return res.status(500).json({ error: 'Failed to update like count' })
+    }
+
+    res.json({ 
+      likes_count: item.likes_count,
+      success: true 
+    })
+  } catch (error) {
+    console.error('Like error:', error)
+    res.status(500).json({ error: 'Server error' })
+  }
+})
+
+/**
+ * GET /api/items/:id/likes
+ * Get like count for an item
+ */
+router.get('/:id/likes', async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const { data: item, error } = await supabase
+      .from('items')
+      .select('likes_count')
+      .eq('id', id)
+      .single()
+
+    if (error) {
+      console.error('Get likes error:', error)
+      return res.status(500).json({ error: 'Failed to get likes' })
+    }
+
+    res.json({ 
+      likes_count: item?.likes_count || 0 
+    })
+  } catch (error) {
+    console.error('Get likes error:', error)
+    res.status(500).json({ error: 'Server error' })
+  }
+})
+
 export default router

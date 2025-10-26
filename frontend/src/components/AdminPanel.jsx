@@ -28,7 +28,7 @@ function Row({ it, onEdit, onTogglePublic }){
   )
 }
 
-export default function AdminPanel({ items, onClose, onLogout, onAdd, onEdit, onTogglePublic }){
+export default function AdminPanel({ items, onClose, onLogout, onAdd, onEdit, onTogglePublic, onNavigate }){
   const [typeNew, setTypeNew] = useState('notebook')
   return (
     <div className="admin-panel-page">
@@ -36,8 +36,13 @@ export default function AdminPanel({ items, onClose, onLogout, onAdd, onEdit, on
       <div className="admin-header">
         <h1>Admin Dashboard</h1>
         <div className="admin-header-actions">
+          {onNavigate && (
+            <>
+              <button className="btn" onClick={()=>onNavigate('home')}>🏠 Home</button>
+              <button className="btn" onClick={()=>onNavigate('discover')}>🔍 Discover</button>
+            </>
+          )}
           {onLogout && <button className="btn" onClick={onLogout}>🚪 Logout</button>}
-          <button className="btn accent" onClick={onClose}>← Back to site</button>
         </div>
       </div>
       

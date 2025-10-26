@@ -659,6 +659,7 @@ export default function App() {
           onAdd={addItem}
           onEdit={editItem}
           onTogglePublic={togglePublic}
+          onNavigate={setView}
         />
       )}
 
