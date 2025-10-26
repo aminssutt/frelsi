@@ -7,8 +7,27 @@ import EmailLogin from './components/EmailLogin'
 import * as api from './services/api'
 
 // Public card for items
-function PublicItemCard({ item, onOpen }){
+function PublicItemCard({ item, onOpen, onLike }){
+  const [likeCount, setLikeCount] = useState(item.likes_count || 0)
+  const [isLiking, setIsLiking] = useState(false)
   const authorName = item.author === 'amar' ? 'Amar Berache' : 'Lakhdar Berache'
+  
+  const handleLike = async (e) => {
+    e.stopPropagation() // Empêcher l'ouverture de la carte
+    if(isLiking) return
+    
+    setIsLiking(true)
+    try {
+      const result = await api.likeItem(item.id)
+      setLikeCount(result.likes_count)
+      if(onLike) onLike(item.id, result.likes_count)
+    } catch(err) {
+      console.error('Failed to like item:', err)
+    } finally {
+      setIsLiking(false)
+    }
+  }
+  
   return (
     <article className="card" onClick={()=>onOpen?.(item)} style={{cursor:'pointer'}}>
       <div className="card-left" />
@@ -27,6 +46,19 @@ function PublicItemCard({ item, onOpen }){
         {item.type === 'drawing' && item.imageUrl && (
           <img src={item.imageUrl} alt={item.title} style={{maxWidth:'100%',borderRadius:8,marginTop:8}} />
         )}
+        <div className="card-footer">
+          <button 
+            className={`like-btn ${isLiking ? 'liking' : ''}`}
+            onClick={handleLike}
+            disabled={isLiking}
+            aria-label="Like"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill={likeCount > 0 ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            <span className="like-count">{likeCount}</span>
+          </button>
+        </div>
       </div>
     </article>
   )
@@ -34,7 +66,7 @@ function PublicItemCard({ item, onOpen }){
 
 export default function App() {
   const [items, setItems] = useState([]) // {id,type,title,createdAt,isPublic,author, bodyHtml|imageUrl|text}
-  const [adminMode, setAdminMode] = useState(false)
+  const [view, setView] = useState('home') // 'home', 'discover', or 'admin'
   const [adminAuthenticated, setAdminAuthenticated] = useState(false)
   const [currentUser, setCurrentUser] = useState(null) // 'lakhdar' or 'amar'
   const [showAdminLogin, setShowAdminLogin] = useState(false)
@@ -42,7 +74,6 @@ export default function App() {
   const [editor, setEditor] = useState({ open:false, type:null, item:null })
   const editorRef = useRef(null)
   const [navConfirm, setNavConfirm] = useState({ show:false, onContinue:null })
-  const [discoverMode, setDiscoverMode] = useState(false)
   const [filter, setFilter] = useState({ type:'', q:'', author:'' })
   const [typedTitle, setTypedTitle] = useState('')
   const [readingItem, setReadingItem] = useState(null)
@@ -125,7 +156,7 @@ export default function App() {
   useEffect(()=>{
     const updateIntroOpacity = () => {
       // Hide intro completely if not on home page
-      if(adminMode || discoverMode){
+      if(view !== 'home'){
         const introEl = document.querySelector('.intro-screen')
         if(introEl){
           introEl.style.opacity = '0'
@@ -150,12 +181,12 @@ export default function App() {
     
     window.addEventListener('scroll', updateIntroOpacity, { passive: true })
     return () => window.removeEventListener('scroll', updateIntroOpacity)
-  }, [adminMode, discoverMode])
+  }, [view])
 
   // Force update intro opacity immediately after any state change
   useEffect(() => {
     // Hide intro completely if not on home page
-    if(adminMode || discoverMode){
+    if(view !== 'home'){
       const introEl = document.querySelector('.intro-screen')
       if(introEl){
         introEl.style.opacity = '0'
@@ -173,7 +204,7 @@ export default function App() {
       introEl.style.opacity = String(opacity)
       introEl.style.pointerEvents = opacity < 0.05 ? 'none' : 'auto'
     }
-  }, [adminMode, discoverMode, editor.open, showAdminLogin, readingItem, showReadConfirm, items.length])
+  }, [view, editor.open, showAdminLogin, readingItem, showReadConfirm, items.length])
 
   // Scroll-triggered animations
   useEffect(()=>{
@@ -193,7 +224,7 @@ export default function App() {
     cards.forEach(card => observer.observe(card))
 
     return () => observer.disconnect()
-  }, [discoverMode, publicItems])
+  }, [view, items])
 
   function ensureSafeNavigation(next){
     // if an editor is open and dirty, try to prompt via ref
@@ -216,7 +247,7 @@ export default function App() {
     setAdminAuthenticated(true)
     setCurrentUser(import.meta.env.VITE_ADMIN_EMAIL)
     setShowAdminLogin(false)
-    setAdminMode(true)
+    setView('admin')
     
     // Reload all items (including private ones)
     try {
@@ -231,7 +262,7 @@ export default function App() {
     api.logout()
     setAdminAuthenticated(false)
     setCurrentUser(null)
-    setAdminMode(false)
+    setView('home')
     
     // Reload only public items
     try {
@@ -513,8 +544,8 @@ export default function App() {
       <nav className="navbar">
         <div className="navbar-container">
           <button 
-            className={`nav-btn ${!discoverMode ? 'active' : ''}`} 
-            onClick={()=>setDiscoverMode(false)}
+            className={`nav-btn ${view === 'home' ? 'active' : ''}`} 
+            onClick={()=>setView('home')}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -523,8 +554,8 @@ export default function App() {
             Home
           </button>
           <button 
-            className={`nav-btn ${discoverMode ? 'active' : ''}`} 
-            onClick={()=>setDiscoverMode(true)}
+            className={`nav-btn ${view === 'discover' ? 'active' : ''}`} 
+            onClick={()=>setView('discover')}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/>
@@ -532,6 +563,18 @@ export default function App() {
             </svg>
             Discover
           </button>
+          {adminAuthenticated && (
+            <button 
+              className={`nav-btn ${view === 'admin' ? 'active' : ''}`} 
+              onClick={()=>setView('admin')}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 5 0 1 1 10 0v4"/>
+              </svg>
+              Admin
+            </button>
+          )}
         </div>
       </nav>
     )
@@ -587,18 +630,18 @@ export default function App() {
         <IntroScreen />
       </div>
       
-      <div className={`main-content ${adminMode || discoverMode ? 'no-intro' : ''}`}>
-        {!adminMode && !discoverMode && <Hero />}
+      <div className={`main-content ${view !== 'home' ? 'no-intro' : ''}`}>
+        {view === 'home' && <Hero />}
         
         <NavBar />
 
-        {!adminMode && !discoverMode && <Examples />}
-        {!adminMode && discoverMode && <DiscoverList />}
+        {view === 'home' && <Examples />}
+        {view === 'discover' && <DiscoverList />}
 
-      {adminMode && (
+      {view === 'admin' && (
         <AdminPanel
           items={items}
-          onClose={()=>setAdminMode(false)}
+          onClose={()=>setView('home')}
           onLogout={handleAdminLogout}
           onAdd={addItem}
           onEdit={editItem}

@@ -206,6 +206,24 @@ export async function validateToken() {
   }
 }
 
+/**
+ * Like an item
+ * @param {number} itemId - Item ID
+ */
+export async function likeItem(itemId) {
+  return fetchAPI(`/api/items/${itemId}/like`, {
+    method: 'POST'
+  })
+}
+
+/**
+ * Get like count for an item
+ * @param {number} itemId - Item ID
+ */
+export async function getLikeCount(itemId) {
+  return fetchAPI(`/api/items/${itemId}/likes`)
+}
+
 export default {
   // Auth
   requestAuthCode,
@@ -221,5 +239,9 @@ export default {
   createItem,
   updateItem,
   toggleItemPublic,
-  deleteItem
+  deleteItem,
+  
+  // Likes
+  likeItem,
+  getLikeCount
 }
