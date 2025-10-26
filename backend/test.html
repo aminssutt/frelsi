@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Backend Frelsi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f7efe6;
+    }
+    h1 {
+      color: #b57b6b;
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #b57b6b;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 0;
+    }
+    button:hover {
+      background: #a06a5a;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    .result {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Test Backend Frelsi</h1>
+
+  <!-- Test 1: Health Check -->
+  <div class="test-section">
+    <h2>Test 1: Health Check</h2>
+    <button onclick="testHealth()">Tester la connexion</button>
+    <div id="health-result" class="result"></div>
+  </div>
+
+  <!-- Test 2: Request Code -->
+  <div class="test-section">
+    <h2>Test 2: Demander un Code</h2>
+    <input type="email" id="email-input" placeholder="Email" value="exemple@email.com">
+    <button onclick="requestCode()">Envoyer le code par email</button>
+    <div id="code-result" class="result"></div>
+  </div>
+
+  <!-- Test 3: Verify Code -->
+  <div class="test-section">
+    <h2>Test 3: Vérifier le Code</h2>
+    <input type="text" id="code-input" placeholder="Code à 6 chiffres" maxlength="6">
+    <button onclick="verifyCode()">Vérifier le code</button>
+    <div id="verify-result" class="result"></div>
+  </div>
+
+  <!-- Test 4: Get Public Items -->
+  <div class="test-section">
+    <h2>Test 4: Récupérer les Items Publics</h2>
+    <button onclick="getItems()">Charger les items</button>
+    <div id="items-result" class="result"></div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3002';
+    let token = null;
+
+    async function testHealth() {
+      const result = document.getElementById('health-result');
+      result.textContent = '⏳ Test en cours...';
+      result.className = 'result';
+      
+      try {
+        const response = await fetch(`${API_URL}/health`);
+        const data = await response.json();
+        result.textContent = '✅ SUCCESS!\n\n' + JSON.stringify(data, null, 2);
+        result.className = 'result success';
+      } catch (error) {
+        result.textContent = '❌ ERREUR!\n\n' + error.message;
+        result.className = 'result error';
+      }
+    }
+
+    async function requestCode() {
+      const email = document.getElementById('email-input').value;
+      const result = document.getElementById('code-result');
+      result.textContent = '⏳ Envoi du code...';
+      result.className = 'result';
+      
+      try {
+        const response = await fetch(`${API_URL}/api/auth/request-code`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          result.textContent = '✅ CODE ENVOYÉ!\n\n' + 
+            'Vérifiez votre email: ' + email + '\n\n' +
+            JSON.stringify(data, null, 2);
+          result.className = 'result success';
+        } else {
+          result.textContent = '❌ ERREUR!\n\n' + JSON.stringify(data, null, 2);
+          result.className = 'result error';
+        }
+      } catch (error) {
+        result.textContent = '❌ ERREUR!\n\n' + error.message;
+        result.className = 'result error';
+      }
+    }
+
+    async function verifyCode() {
+      const email = document.getElementById('email-input').value;
+      const code = document.getElementById('code-input').value;
+      const result = document.getElementById('verify-result');
+      result.textContent = '⏳ Vérification du code...';
+      result.className = 'result';
+      
+      try {
+        const response = await fetch(`${API_URL}/api/auth/verify-code`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, code })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          token = data.token;
+          result.textContent = '✅ CODE VALIDE!\n\n' +
+            'Token JWT reçu (valide 7 jours)\n\n' +
+            JSON.stringify(data, null, 2);
+          result.className = 'result success';
+        } else {
+          result.textContent = '❌ CODE INVALIDE!\n\n' + JSON.stringify(data, null, 2);
+          result.className = 'result error';
+        }
+      } catch (error) {
+        result.textContent = '❌ ERREUR!\n\n' + error.message;
+        result.className = 'result error';
+      }
+    }
+
+    async function getItems() {
+      const result = document.getElementById('items-result');
+      result.textContent = '⏳ Chargement des items...';
+      result.className = 'result';
+      
+      try {
+        const response = await fetch(`${API_URL}/api/items`);
+        const data = await response.json();
+        
+        if (response.ok) {
+          result.textContent = '✅ ITEMS CHARGÉS!\n\n' +
+            `Nombre d'items publics: ${data.items.length}\n\n` +
+            JSON.stringify(data, null, 2);
+          result.className = 'result success';
+        } else {
+          result.textContent = '❌ ERREUR!\n\n' + JSON.stringify(data, null, 2);
+          result.className = 'result error';
+        }
+      } catch (error) {
+        result.textContent = '❌ ERREUR!\n\n' + error.message;
+        result.className = 'result error';
+      }
+    }
+  </script>
+</body>
+</html>
