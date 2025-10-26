@@ -9,7 +9,22 @@ const transporter = createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  connectionTimeout: 10000, // 10 seconds max to connect
+  greetingTimeout: 5000, // 5 seconds max for greeting
+  socketTimeout: 15000, // 15 seconds max per operation
 })
+
+/**
+ * Timeout wrapper for promises
+ */
+function withTimeout(promise, timeoutMs, errorMessage) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => 
+      setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
+    )
+  ])
+}
 
 /**
  * Send authentication code email
@@ -18,11 +33,12 @@ const transporter = createTransport({
  */
 export async function sendAuthCode(email, code) {
   try {
-    const info = await transporter.sendMail({
-      from: `"Frelsi" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: '🔐 Votre code de connexion Frelsi',
-      html: `
+    const info = await withTimeout(
+      transporter.sendMail({
+        from: `"Frelsi" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: '🔐 Votre code de connexion Frelsi',
+        html: `
         <!DOCTYPE html>
         <html>
           <head>
@@ -118,15 +134,13 @@ export async function sendAuthCode(email, code) {
           </body>
         </html>
       `
-    })
+      }),
+      20000, // 20 second timeout
+      'Email sending timeout - SMTP server took too long to respond'
+    )
 
-    if (error) {
-      console.error('❌ Resend error:', error)
-      throw new Error(`Failed to send email: ${error.message}`)
-    }
-
-    console.log('✅ Email sent successfully:', data.id)
-    return { success: true, messageId: data.id }
+    console.log('✅ Email sent successfully:', info.messageId)
+    return { success: true, messageId: info.messageId }
   } catch (error) {
     console.error('❌ Email service error:', error)
     throw error
