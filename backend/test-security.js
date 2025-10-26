@@ -6,7 +6,7 @@
  */
 
 const API_URL = 'http://localhost:3002'
-const TEST_EMAIL = 'lakhdarberache@gmail.com'
+const TEST_EMAIL = 'daivinnyy@gmail.com'
 
 async function testRateLimit() {
   console.log('\n🧪 Test 1: Rate Limiting sur /request-code')

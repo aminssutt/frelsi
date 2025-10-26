@@ -71,7 +71,7 @@ export default function EmailLogin({ onSuccess, onClose }) {
                 className="login-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="lakhdarberache@gmail.com"
+                placeholder="daivinnyy@gmail.com"
                 required
                 autoFocus
                 disabled={loading}

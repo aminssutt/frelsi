@@ -33,7 +33,7 @@ backend/
 - Emails envoyés depuis: `Frelsi <onboarding@resend.dev>`
 
 **Admin** :
-- Email: `lakhdarberache@gmail.com`
+- Email: `daivinnyy@gmail.com`
 
 **Serveur** :
 - Port: `3002` (changé de 3001)
@@ -81,7 +81,7 @@ https://frelsi-backend.up.railway.app/api/...
 ### Authentification sécurisée
 
 1. User clique "Admin"
-2. Entre son email: `lakhdarberache@gmail.com`
+2. Entre son email: `daivinnyy@gmail.com`
 3. Reçoit un code à 6 chiffres par email
 4. Entre le code
 5. Obtient un JWT token valide 7 jours

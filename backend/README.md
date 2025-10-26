@@ -29,7 +29,7 @@ SUPABASE_ANON_KEY=your_supabase_anon_key
 RESEND_API_KEY=re_your_resend_key
 
 # Admin
-ADMIN_EMAIL=lakhdarberache@gmail.com
+ADMIN_EMAIL=daivinnyy@gmail.com
 
 # JWT
 JWT_SECRET=your_very_long_random_secret
@@ -110,7 +110,7 @@ npm start
 **POST** `/api/auth/request-code`
 ```json
 {
-  "email": "lakhdarberache@gmail.com"
+  "email": "daivinnyy@gmail.com"
 }
 ```
 → Envoie un code à 6 chiffres par email
@@ -118,7 +118,7 @@ npm start
 **POST** `/api/auth/verify-code`
 ```json
 {
-  "email": "lakhdarberache@gmail.com",
+  "email": "daivinnyy@gmail.com",
   "code": "123456"
 }
 ```
@@ -182,7 +182,7 @@ Dans Railway → Variables :
 SUPABASE_URL=https://phouklsqlhstcmsbllgg.supabase.co
 SUPABASE_ANON_KEY=eyJhbGci...
 RESEND_API_KEY=re_jKSHz5Bu...
-ADMIN_EMAIL=lakhdarberache@gmail.com
+ADMIN_EMAIL=daivinnyy@gmail.com
 JWT_SECRET=frelsi_super_secret_key_2025
 NODE_ENV=production
 FRONTEND_URL=https://frelsi.vercel.app
@@ -217,7 +217,7 @@ Si problème au démarrage, vérifiez :
 
 ## 📧 Support
 
-Email: lakhdarberache@gmail.com
+Email: daivinnyy@gmail.com
 
 ---
 
