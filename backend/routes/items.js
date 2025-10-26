@@ -309,55 +309,30 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 
 /**
  * POST /api/items/:id/like
- * Like an item (no auth required, tracked by IP)
+ * Like an item (no auth required, simple increment)
  */
 router.post('/:id/like', async (req, res) => {
   try {
     const { id } = req.params
-    const ipAddress = req.ip || req.connection.remoteAddress
 
-    // Check if already liked by this IP
-    const { data: existingLike } = await supabase
-      .from('likes')
-      .select('*')
-      .eq('item_id', id)
-      .eq('ip_address', ipAddress)
+    // Get current item
+    const { data: item, error: fetchError } = await supabase
+      .from('items')
+      .select('likes_count')
+      .eq('id', id)
       .single()
 
-    if (existingLike) {
-      // Already liked, return current count
-      const { data: item } = await supabase
-        .from('items')
-        .select('likes_count')
-        .eq('id', id)
-        .single()
-
-      return res.json({ 
-        likes_count: item?.likes_count || 0,
-        already_liked: true 
-      })
-    }
-
-    // Add like
-    const { error: likeError } = await supabase
-      .from('likes')
-      .insert({
-        item_id: id,
-        ip_address: ipAddress
-      })
-
-    if (likeError) {
-      console.error('Like insert error:', likeError)
-      return res.status(500).json({ error: 'Failed to add like' })
+    if (fetchError || !item) {
+      console.error('Item not found:', fetchError)
+      return res.status(404).json({ error: 'Item not found' })
     }
 
     // Increment likes_count
-    const { data: item, error: updateError } = await supabase
+    const newCount = (item.likes_count || 0) + 1
+    const { error: updateError } = await supabase
       .from('items')
-      .update({ likes_count: supabase.sql`likes_count + 1` })
+      .update({ likes_count: newCount })
       .eq('id', id)
-      .select('likes_count')
-      .single()
 
     if (updateError) {
       console.error('Like count update error:', updateError)
@@ -365,7 +340,7 @@ router.post('/:id/like', async (req, res) => {
     }
 
     res.json({ 
-      likes_count: item.likes_count,
+      likes_count: newCount,
       success: true 
     })
   } catch (error) {
