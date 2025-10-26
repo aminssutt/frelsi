@@ -4,6 +4,7 @@ import Footer from './components/Footer'
 import AdminPanel from './components/AdminPanel'
 import Doodles from './components/Doodles'
 import EmailLogin from './components/EmailLogin'
+import Toast from './components/Toast'
 import * as api from './services/api'
 
 // Public card for items
@@ -79,6 +80,16 @@ export default function App() {
   const [readingItem, setReadingItem] = useState(null)
   const [showReadConfirm, setShowReadConfirm] = useState(null)
   const [loadingData, setLoadingData] = useState(true) // Track initial data loading
+  const [toasts, setToasts] = useState([]) // Toast notifications
+
+  // Toast helper functions
+  const showToast = (message, type = 'success') => {
+    const id = Date.now()
+    setToasts(prev => [...prev, { id, message, type }])
+  }
+  const removeToast = (id) => {
+    setToasts(prev => prev.filter(t => t.id !== id))
+  }
 
   // Load items from API on mount only
   useEffect(()=>{
@@ -334,15 +345,17 @@ export default function App() {
         // Update existing
         const updated = await api.updateItem(payload.id, itemData)
         setItems(items.map(it => it.id === payload.id ? updated : it))
+        showToast('Notebook mis à jour avec succès', 'success')
       } else {
         // Create new
         const created = await api.createItem(itemData)
         setItems([created, ...items])
+        showToast('Nouveau notebook créé avec succès', 'success')
       }
       setEditor({ open:false, type:null, item:null })
     } catch(err){
       console.error('Failed to save notebook:', err)
-      alert('Échec de la sauvegarde du notebook')
+      showToast('Échec de la sauvegarde du notebook', 'error')
     }
   }
   
@@ -361,15 +374,17 @@ export default function App() {
         // Update existing
         const updated = await api.updateItem(editor.item.id, itemData)
         setItems(items.map(it => it.id === editor.item.id ? updated : it))
+        showToast('Dessin mis à jour avec succès', 'success')
       } else {
         // Create new
         const created = await api.createItem(itemData)
         setItems([created, ...items])
+        showToast('Nouveau dessin créé avec succès', 'success')
       }
       setEditor({ open:false, type:null, item:null })
     } catch(err){
       console.error('Failed to save drawing:', err)
-      alert('Échec de la sauvegarde du dessin')
+      showToast('Échec de la sauvegarde du dessin', 'error')
     }
   }
   
@@ -388,27 +403,28 @@ export default function App() {
         // Update existing
         const updated = await api.updateItem(editor.item.id, itemData)
         setItems(items.map(it => it.id === editor.item.id ? updated : it))
+        showToast('Idée mise à jour avec succès', 'success')
       } else {
         // Create new
         const created = await api.createItem(itemData)
         setItems([created, ...items])
+        showToast('Nouvelle idée créée avec succès', 'success')
       }
       setEditor({ open:false, type:null, item:null })
     } catch(err){
       console.error('Failed to save idea:', err)
-      alert('Échec de la sauvegarde de l\'idée')
+      showToast('Échec de la sauvegarde de l\'idée', 'error')
     }
   }
   
   async function deleteItemById(id){
-    if(!window.confirm('Supprimer définitivement cet élément ?')) return
-    
     try {
       await api.deleteItem(id)
       setItems(items.filter(it => it.id !== id))
+      showToast('Élément supprimé avec succès', 'success')
     } catch(err){
       console.error('Failed to delete item:', err)
-      alert('Échec de la suppression')
+      showToast('Échec de la suppression', 'error')
     }
   }
 
@@ -626,6 +642,18 @@ export default function App() {
 
   return (
     <div>
+      {/* Toast notifications */}
+      <div className="toast-container">
+        {toasts.map(toast => (
+          <Toast 
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onClose={() => removeToast(toast.id)}
+          />
+        ))}
+      </div>
+
       {/* Fixed intro container that never re-renders */}
       <div className="intro-container">
         <IntroScreen />
@@ -647,6 +675,7 @@ export default function App() {
           onAdd={addItem}
           onEdit={editItem}
           onTogglePublic={togglePublic}
+          onDelete={deleteItemById}
         />
       )}
 

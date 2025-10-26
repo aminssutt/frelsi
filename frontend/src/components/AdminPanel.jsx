@@ -1,8 +1,21 @@
 import React, { useState } from 'react'
 import Doodles from './Doodles'
 
-function Row({ it, onEdit, onTogglePublic }){
+function Row({ it, onEdit, onTogglePublic, onDelete }){
   const authorName = it.author === 'amar' ? 'Amar' : 'Lakhdar'
+  const [showConfirm, setShowConfirm] = useState(false)
+  
+  const handleDelete = () => {
+    if(showConfirm) {
+      onDelete(it.id)
+      setShowConfirm(false)
+    } else {
+      setShowConfirm(true)
+      // Auto-reset after 3 seconds
+      setTimeout(() => setShowConfirm(false), 3000)
+    }
+  }
+  
   return (
     <div className="admin-row">
       <div className="admin-row-content">
@@ -23,12 +36,18 @@ function Row({ it, onEdit, onTogglePublic }){
           {it.isPublic ? '🔒 Make Private' : '👁️ Make Public'}
         </button>
         <button className="btn primary small" onClick={()=>onEdit(it)}>✏️ Edit</button>
+        <button 
+          className={`btn small ${showConfirm ? 'danger' : ''}`}
+          onClick={handleDelete}
+        >
+          {showConfirm ? '⚠️ Confirmer ?' : '🗑️ Delete'}
+        </button>
       </div>
     </div>
   )
 }
 
-export default function AdminPanel({ items, onClose, onLogout, onAdd, onEdit, onTogglePublic }){
+export default function AdminPanel({ items, onClose, onLogout, onAdd, onEdit, onTogglePublic, onDelete }){
   const [typeNew, setTypeNew] = useState('notebook')
   const [adminView, setAdminView] = useState('dashboard') // 'dashboard', 'home', 'discover'
   
@@ -92,7 +111,7 @@ export default function AdminPanel({ items, onClose, onLogout, onAdd, onEdit, on
         <div className="admin-items-wrapper">
           <div className="admin-items-list">
             {items.map(it => (
-              <Row key={it.id} it={it} onEdit={onEdit} onTogglePublic={onTogglePublic} />
+              <Row key={it.id} it={it} onEdit={onEdit} onTogglePublic={onTogglePublic} onDelete={onDelete} />
             ))}
             {items.length === 0 && (
               <div className="admin-empty">
