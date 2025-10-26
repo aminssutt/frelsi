@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Doodles from './Doodles'
+import * as api from '../services/api'
 
 export default function EmailLogin({ onSuccess, onClose }) {
   const [step, setStep] = useState('email') // 'email' or 'code'
@@ -15,17 +16,7 @@ export default function EmailLogin({ onSuccess, onClose }) {
     setLoading(true)
 
     try {
-      const response = await fetch('http://localhost:3002/api/auth/request-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Échec de l\'envoi du code')
-      }
+      await api.requestAuthCode(email)
 
       setCodeSent(true)
       setStep('code')
@@ -42,22 +33,9 @@ export default function EmailLogin({ onSuccess, onClose }) {
     setLoading(true)
 
     try {
-      const response = await fetch('http://localhost:3002/api/auth/verify-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code })
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Code invalide')
-      }
-
-      // Store token
-      localStorage.setItem('frelsi_token', data.token)
+      const data = await api.verifyAuthCode(email, code)
       
-      // Success!
+      // Success! Token already stored by api.js
       onSuccess(data.token)
     } catch (err) {
       setError(err.message)
