@@ -12,7 +12,11 @@ const PORT = process.env.PORT || 3001
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL 
+    ? [
+        process.env.FRONTEND_URL,
+        'https://frelsi.vercel.app',
+        /https:\/\/frelsi-.*\.vercel\.app$/
+      ]
     : true, // Allow all origins in development
   credentials: true
 }))
