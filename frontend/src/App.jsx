@@ -85,24 +85,37 @@ export default function App() {
     async function loadItems(){
       setLoadingData(true)
       try {
-        // Check if we have a valid token
-        const isAuth = api.isAuthenticated()
-        setAdminAuthenticated(isAuth)
-        setCurrentUser(isAuth ? import.meta.env.VITE_ADMIN_EMAIL : null)
+        // Check if we have a valid token by validating it with backend
+        const isAuth = api.isAuthenticated() && await api.validateToken()
         
-        // Load items based on authentication status
         if(isAuth){
+          setAdminAuthenticated(true)
+          setCurrentUser(import.meta.env.VITE_ADMIN_EMAIL)
           // Load all items (public + private) if authenticated
           const allItems = await api.getAllItems()
           setItems(allItems)
         } else {
-          // Load only public items if not authenticated
+          // Token invalid or doesn't exist - clear auth state
+          setAdminAuthenticated(false)
+          setCurrentUser(null)
+          api.clearAuthToken()
+          // Load only public items
           const publicItems = await api.getPublicItems()
           setItems(publicItems)
         }
       } catch(err){
         console.error('Failed to load items from API:', err)
-        // Don't set items to empty on error - keep existing items if any
+        // On error, assume not authenticated
+        setAdminAuthenticated(false)
+        setCurrentUser(null)
+        api.clearAuthToken()
+        // Try to load public items at least
+        try {
+          const publicItems = await api.getPublicItems()
+          setItems(publicItems)
+        } catch(e) {
+          console.error('Failed to load public items:', e)
+        }
       } finally {
         setLoadingData(false)
       }
