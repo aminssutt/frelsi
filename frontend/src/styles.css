@@ -350,6 +350,10 @@ body{
 .admin-empty{text-align:center;padding:60px 20px;color:var(--muted)}
 .admin-empty .empty-icon{font-size:64px;opacity:0.3;margin-bottom:16px}
 
+.admin-view-message{text-align:center;padding:80px 20px;color:var(--ink)}
+.admin-view-message h2{font-size:32px;margin-bottom:16px;color:#b57b6b}
+.admin-view-message p{font-size:16px;color:var(--muted)}
+
 .admin-panel-modal{width:920px;max-width:95vw}
 
 /* Admin Login - Modern Design */

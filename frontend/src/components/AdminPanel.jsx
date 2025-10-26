@@ -28,24 +28,39 @@ function Row({ it, onEdit, onTogglePublic }){
   )
 }
 
-export default function AdminPanel({ items, onClose, onLogout, onAdd, onEdit, onTogglePublic, onNavigate }){
+export default function AdminPanel({ items, onClose, onLogout, onAdd, onEdit, onTogglePublic }){
   const [typeNew, setTypeNew] = useState('notebook')
+  const [adminView, setAdminView] = useState('dashboard') // 'dashboard', 'home', 'discover'
+  
   return (
     <div className="admin-panel-page">
       <Doodles />
       <div className="admin-header">
         <h1>Admin Dashboard</h1>
         <div className="admin-header-actions">
-          {onNavigate && (
-            <>
-              <button className="btn" onClick={()=>onNavigate('home')}>🏠 Home</button>
-              <button className="btn" onClick={()=>onNavigate('discover')}>🔍 Discover</button>
-            </>
-          )}
+          <button 
+            className={`btn ${adminView === 'dashboard' ? 'accent' : ''}`} 
+            onClick={()=>setAdminView('dashboard')}
+          >
+            ⚙️ Dashboard
+          </button>
+          <button 
+            className={`btn ${adminView === 'home' ? 'accent' : ''}`} 
+            onClick={()=>setAdminView('home')}
+          >
+            🏠 Home
+          </button>
+          <button 
+            className={`btn ${adminView === 'discover' ? 'accent' : ''}`} 
+            onClick={()=>setAdminView('discover')}
+          >
+            🔍 Discover
+          </button>
           {onLogout && <button className="btn" onClick={onLogout}>🚪 Logout</button>}
         </div>
       </div>
       
+      {adminView === 'dashboard' && (
       <div className="admin-content">
         <div className="admin-stats">
           <div className="stat-card">
@@ -88,6 +103,25 @@ export default function AdminPanel({ items, onClose, onLogout, onAdd, onEdit, on
           </div>
         </div>
       </div>
+      )}
+      
+      {adminView === 'home' && (
+        <div className="admin-content">
+          <div className="admin-view-message">
+            <h2>🏠 Vue Home</h2>
+            <p>Affichage des notebooks publics (vue utilisateur)</p>
+          </div>
+        </div>
+      )}
+      
+      {adminView === 'discover' && (
+        <div className="admin-content">
+          <div className="admin-view-message">
+            <h2>🔍 Vue Discover</h2>
+            <p>Affichage de tous les contenus publics</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
