@@ -272,6 +272,30 @@ body{
   font-style:italic;
 }
 
+/* Image Loading State */
+.image-container{position:relative;min-height:150px}
+.image-loading{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  background:rgba(247,239,226,0.5);
+  border-radius:8px;
+  padding:20px;
+}
+.image-loading .loading-spinner{
+  width:40px;
+  height:40px;
+  border-width:3px;
+}
+.image-loading .loading-text{
+  font-size:14px;
+  margin-top:0;
+}
+
 .gallery-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
 .gallery-item{grid-column:span 6;opacity:0;transition:opacity 0.5s ease-out, transform 0.5s ease-out;transform:translateY(30px)}
 .gallery-item.visible{opacity:1;transform:translateY(0)}

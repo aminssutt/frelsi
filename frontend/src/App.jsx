@@ -11,6 +11,7 @@ import * as api from './services/api'
 function PublicItemCard({ item, onOpen, onLike }){
   const [likeCount, setLikeCount] = useState(item.likes_count || 0)
   const [isLiking, setIsLiking] = useState(false)
+  const [imageLoading, setImageLoading] = useState(true)
   const authorName = item.author === 'amar' ? 'Amar Berache' : 'Lakhdar Berache'
   
   const handleLike = async (e) => {
@@ -45,7 +46,24 @@ function PublicItemCard({ item, onOpen, onLike }){
           <p className="excerpt">{item.text?.slice(0, 180)}{(item.text?.length||0) > 180 ? '…' : ''}</p>
         )}
         {item.type === 'drawing' && item.imageUrl && (
-          <img src={item.imageUrl} alt={item.title} style={{maxWidth:'100%',borderRadius:8,marginTop:8}} />
+          <div className="image-container" style={{position:'relative',marginTop:8}}>
+            {imageLoading && (
+              <div className="image-loading">
+                <div className="loading-spinner"></div>
+              </div>
+            )}
+            <img 
+              src={item.imageUrl} 
+              alt={item.title} 
+              style={{
+                maxWidth:'100%',
+                borderRadius:8,
+                display: imageLoading ? 'none' : 'block'
+              }}
+              onLoad={() => setImageLoading(false)}
+              onError={() => setImageLoading(false)}
+            />
+          </div>
         )}
         <div className="card-footer">
           <button 
@@ -228,7 +246,7 @@ export default function App() {
       introEl.style.opacity = String(opacity)
       introEl.style.pointerEvents = opacity < 0.05 ? 'none' : 'auto'
     }
-  }, [view, editor.open, showAdminLogin, readingItem, showReadConfirm, items.length])
+  }, [view, editor.open, showAdminLogin, readingItem, showReadConfirm])
 
   // Scroll-triggered animations
   useEffect(()=>{
@@ -749,6 +767,7 @@ export default function App() {
 
 // Reading View Component (A4 paper style)
 function ReadingView({ item, onClose }){
+  const [imageLoading, setImageLoading] = useState(true)
   const authorName = item.author === 'amar' ? 'Amar Berache' : 'Lakhdar Berache'
   return (
     <div className="reading-backdrop" onClick={onClose}>
@@ -783,8 +802,24 @@ function ReadingView({ item, onClose }){
               </div>
             )}
             {item.type === 'drawing' && item.imageUrl && (
-              <div className="drawing-content">
-                <img src={item.imageUrl} alt={item.title} style={{maxWidth:'100%',borderRadius:8}} />
+              <div className="drawing-content" style={{position:'relative'}}>
+                {imageLoading && (
+                  <div className="image-loading" style={{minHeight:200}}>
+                    <div className="loading-spinner"></div>
+                    <div className="loading-text">Chargement de l'image...</div>
+                  </div>
+                )}
+                <img 
+                  src={item.imageUrl} 
+                  alt={item.title} 
+                  style={{
+                    maxWidth:'100%',
+                    borderRadius:8,
+                    display: imageLoading ? 'none' : 'block'
+                  }}
+                  onLoad={() => setImageLoading(false)}
+                  onError={() => setImageLoading(false)}
+                />
               </div>
             )}
             {item.type === 'drawing' && !item.imageUrl && (
